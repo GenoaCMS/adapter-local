@@ -1,0 +1,46 @@
+{
+  "name": "@genoacms/adapter-local",
+  "version": "0.5.4",
+  "description": "Adapter for running GenoaCMS on local machine",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GenoaCMS/adapter-local.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GenoaCMS/adapter-aws/issues"
+  },
+  "homepage": "https://github.com/GenoaCMS/adapter-aws#readme",
+  "dependencies": {
+    "@genoacms/cloudabstraction": "^0.5.4",
+    "lowdb": "^7.0.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.52.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-n": "^16.2.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "typescript": "^5.3.3",
+    "vitest": "^1.1.0"
+  },
+  "exports": {
+    "./authorization": {
+      "import": "./src/services/authorization/index.js"
+    },
+    "./database": {
+      "import": "./src/services/database/index.js"
+    },
+    "./deployment": {
+      "import": "./src/services/deployment/index.js"
+    },
+    "./storage": {
+      "import": "./src/services/storage/index.js"
+    }
+  }
+}
