@@ -18,10 +18,10 @@ jobs:
           version: latest
           node-version: 18
           registry-url: https://registry.npmjs.org/
-      - run: pnpm i
-      - run: pnpm run build
+      - run: npm i
+      - run: npm run build
       - name: Set publishing config
-        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
+        run: npm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
-      - run: pnpm publish --access public --no-git-checks
+      - run: npm publish --access public --no-git-checks
