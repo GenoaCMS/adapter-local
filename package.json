@@ -3,6 +3,7 @@
   "version": "0.5.4",
   "description": "Adapter for running GenoaCMS on local machine",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "build": "tsc"
   },
