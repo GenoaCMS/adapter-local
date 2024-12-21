@@ -1,4 +1,5 @@
 import { JSONFilePreset } from 'lowdb/node'
+import type { Low } from 'lowdb'
 import { config } from '@genoacms/cloudabstraction'
 import type {
   Adapter,
@@ -16,7 +17,7 @@ const databaseConfig = config.database.providers.find((provider: DatabaseProvide
 if (!databaseConfig) throw new Error('local-database-provider-not-found')
 
 interface Collections {
-  [name: string]: any
+  [name: string]: Low<any>
 }
 function getCollectionNames (): Array<string> {
   const collections = config.collections as Array<CollectionReference>
@@ -57,6 +58,46 @@ const createDocument: Adapter['createDocument'] = async (collectionReference, do
   return snapshot
 }
 
+const getCollections: Adapter['getCollection'] = async (collectionReference) => {
+  const collection = collections[collectionReference.name]
+  const data: CollectionSnapshot<typeof collectionReference> = await collection.data
+  return data
+}
+
+const getDocument: Adapter['getDocument'] = async (documentReference) => {
+  const collection = collections[documentReference.collection.name] as Low<Array<Document<typeof documentReference.collection>>>
+  const document = collection.data.find((doc) => doc[documentReference.collection.primaryKey.key] === documentReference.id)
+  if (!document) throw new Error('document-not-found')
+  const snapshot: DocumentSnapshot<typeof documentReference.collection> = {
+    reference: documentReference,
+    data: document
+  }
+  return snapshot
+}
+
+const updateDocument: Adapter['updateDocument'] = async (documentReference, update) => {
+  const collection = collections[documentReference.collection.name] as Low<Array<Document<typeof documentReference.collection>>>
+  const document = collection.data.find((doc) => doc[documentReference.collection.primaryKey.key] === documentReference.id)
+  if (!document) throw new Error('document-not-found')
+  const updatedDocument = { ...document, ...update }
+  await collection.update((data: Array<Document>) => {
+    const index = data.findIndex((doc: Document) => doc[documentReference.collection.primaryKey.key] === documentReference.id)
+    data[index] = updatedDocument
+  });
+  const snapshot: UpdateSnapshot<typeof documentReference.collection> = {
+    reference: documentReference,
+    data: updatedDocument
+  }
+  return snapshot
+}
+
+const deleteDocument: Adapter['deleteDocument'] = async (documentReference) => {
+  const collection = collections[documentReference.collection.name]
+  collection.update((data: Array<Document>) => {
+    data = data.filter((doc: Document) => doc[documentReference.collection.primaryKey.key] !== documentReference.id)
+  })
+}
+
 // async function test () {
 //   const testCollectionRef = config.collections[0]
 //   // @ts-ignore
@@ -69,5 +110,9 @@ const createDocument: Adapter['createDocument'] = async (collectionReference, do
 // }
 
 export {
-  createDocument
+  createDocument,
+  getCollections,
+  getDocument,
+  updateDocument,
+  deleteDocument
 }
