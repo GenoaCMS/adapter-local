@@ -1,6 +1,19 @@
 import { JSONFilePreset } from 'lowdb/node'
 import { config } from '@genoacms/cloudabstraction'
-import type { CollectionReference, Document, DocumentSnapshot } from '@genoacms/cloudabstraction/database'
+import type {
+  Adapter,
+  DatabaseProvider,
+  CollectionSnapshot,
+  Document,
+  CollectionReference,
+  DocumentReference,
+  DocumentSnapshot,
+  UpdateSnapshot
+} from '@genoacms/cloudabstraction/database'
+
+const PROVIDER_NAME = '@genoacms/adapter-gcp/database'
+const databaseConfig = config.database.providers.find((provider: DatabaseProvider) => provider.name === PROVIDER_NAME)
+if (!databaseConfig) throw new Error('local-database-provider-not-found')
 
 interface Collections {
   [name: string]: any
@@ -20,7 +33,6 @@ async function createCollections (): Promise<Collections> {
   collectionResolvedPromises = await Promise.all(collectionPromises)
   for (let i = 0; i < collectionNames.length; i++) {
     const name = collectionNames[i]
-    // @ts-ignore
     const collection = collectionResolvedPromises[i]
     collections[name] = collection
   }
@@ -29,10 +41,9 @@ async function createCollections (): Promise<Collections> {
 
 const collections = await createCollections()
 
-async function createDocument <C extends CollectionReference> (collectionReference: C, document: Document<C>): Promise<DocumentSnapshot<C>> {
-// @ts-ignore
+const createDocument: Adapter['createDocument'] = async (collectionReference, document) => {
   const collection = collections[collectionReference.name]
-  await collection.update((data: Array<Document<C>>) => {
+  await collection.update((data: Array<Document>) => {
     data.push(document)
   });
   const snapshot = {
@@ -56,3 +67,7 @@ async function createDocument <C extends CollectionReference> (collectionReferen
 //   await testCollection.read()
 //   console.log(testCollection)
 // }
+
+export {
+  createDocument
+}

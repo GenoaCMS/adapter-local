@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/GenoaCMS/adapter-aws#readme",
   "dependencies": {
-    "@genoacms/cloudabstraction": "^0.5.4",
+    "@genoacms/cloudabstraction": "^0.7.3",
     "lowdb": "^7.0.1"
   },
   "devDependencies": {
